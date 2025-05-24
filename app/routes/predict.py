@@ -25,7 +25,7 @@ def predict():
     batas_turb = (0.1, 5)
     
     # Batas peringatan (untuk nilai yang sedikit melebihi batas)
-    batas_peringatan_turb = 6  # Jika turbidity > 5 tapi <= 6, hanya peringatan
+    batas_peringatan_turb = 6 
 
     try:
         # Validasi input
@@ -51,7 +51,7 @@ def predict():
         elif data['temperature'] > batas_temp[1]:
             masalah.append(f'Suhu air ({data["temperature"]}°C) terlalu tinggi')
         
-        # Validasi batas nilai turbidity dengan peringatan
+        # Validasi batas nilai turbidity
         if data['turbidity'] < batas_turb[0]:
             masalah.append(f'Nilai kekeruhan ({data["turbidity"]} NTU) terlalu rendah')
         elif data['turbidity'] > batas_turb[1]:
@@ -72,7 +72,7 @@ def predict():
                 'reason': reason
             })
 
-        # Jika semua nilai dalam batas, gunakan model
+        # Jika semua nilai dalam batas
         features = [data['pH'], data['temperature'], data['turbidity']]
         features = np.array(features).reshape(1, -1)
         features_scaled = scaler.transform(features)
