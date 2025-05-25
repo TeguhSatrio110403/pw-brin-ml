@@ -1,1 +1,1 @@
-web: gunicorn wsgi:app 
+web: gunicorn --preload --workers 1 "main:create_app()" 
