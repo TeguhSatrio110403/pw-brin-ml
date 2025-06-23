@@ -1,5 +1,6 @@
 flask
 scikit-learn
-numpy
+xgboost
 pandas
 joblib
+python-dotenv

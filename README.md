@@ -1,19 +1,31 @@
 # Water Quality Prediction API
-
 API untuk memprediksi kualitas air menggunakan kombinasi rule-based + machine learning model.
 
-## Endpoint
+Rentang Waktu (n_step) 
+'1 jam (12 langkah)': 12,
+'3 jam (36 langkah)': 36,
+'6 jam (72 langkah)': 72,
+'12 jam (144 langkah)': 144,
+'1 hari (288 langkah)': 288,
+'3 hari (864 langkah)': 864,
+'1 minggu (2016 langkah)': 2016
+
+# Endpoint
 - `POST /api/predict`
-  - Body (JSON):
-    {
-      "pH": 7.0,
-      "temperature": 25.0,
-      "turbidity": 1.5
+  - {
+        "pH_t": 7.0,
+        "temperature_t": 25.0,
+        "turbidity_t": 0.53,
+        "n_step": 36
     }
 
   - Response (JSON):
     {
-      "prediction": "Layak"
+        "n_step": 36,
+        "pH_pred": 7.15,
+        "quality": "Sangat Layak",
+        "temperature_pred": 25.34,
+        "turbidity_pred": 1.67
     }
 
 ## Cara Jalankan
