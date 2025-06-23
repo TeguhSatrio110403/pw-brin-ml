@@ -83,13 +83,13 @@ else:
     clf.fit(X_clf, y_encoded)
 
     # Simpan model dan encoder dengan suffix n_step
-    os.makedirs("app/models", exist_ok=True)
+    os.makedirs("app/models/regresi_class/model_pkl", exist_ok=True)
     suffix = f"_{n_step}"
-    joblib.dump(model_pH, f"app/models/trained_ph_model{suffix}.pkl")
-    joblib.dump(model_temp, f"app/models/trained_temp_model{suffix}.pkl")
-    joblib.dump(model_turb, f"app/models/trained_turb_model{suffix}.pkl")
-    joblib.dump(clf, f"app/models/trained_quality_classifier{suffix}.pkl")
-    joblib.dump(le, f"app/models/label_encoder{suffix}.pkl")
+    joblib.dump(model_pH, f"app/models/regresi_class/model_pkl/trained_ph_model{suffix}.pkl")
+    joblib.dump(model_temp, f"app/models/regresi_class/model_pkl/trained_temp_model{suffix}.pkl")
+    joblib.dump(model_turb, f"app/models/regresi_class/model_pkl/trained_turb_model{suffix}.pkl")
+    joblib.dump(clf, f"app/models/regresi_class/model_pkl/trained_quality_classifier{suffix}.pkl")
+    joblib.dump(le, f"app/models/regresi_class/model_pkl/label_encoder{suffix}.pkl")
     # Simpan n_step agar konsisten saat prediksi
-    with open(f"app/models/n_step{suffix}.txt", "w") as f:
+    with open(f"app/models/regresi_class/model_pkl/n_step{suffix}.txt", "w") as f:
         f.write(str(n_step))
