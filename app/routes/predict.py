@@ -1,53 +1,41 @@
-import pickle
-import numpy as np
 from flask import Blueprint, request, jsonify
-from app.models.model import predict_quality
+from ..models.regresi_class.services import predict_water_quality
 
-# Buat Blueprint
-predict_bp = Blueprint("predict_bp", __name__)
+api = Blueprint("api", __name__)
 
-# Batas nilai untuk deteksi anomali
-batas_pH = (4.0, 9.0)
-batas_temp = (20, 33)
-batas_turb = (0, 100)
-
-@predict_bp.route("/predict", methods=["POST"])
+@api.route("/predict_class", methods=["POST"])
 def predict():
     try:
         data = request.get_json()
-        
         # Validasi input
-        required_fields = ['pH', 'temperature', 'turbidity']
+        required_fields = ['pH_t', 'temperature_t', 'turbidity_t', 'n_step']
         for field in required_fields:
             if field not in data:
-                return jsonify({
-                    'error': f'Field {field} is required'
-                }), 400
-
+                return jsonify({'error': f'Field {field} is required'}), 400
+        # Batas anomali
+        batas_pH = (4.0, 9.0)
+        batas_temp = (20, 33)
+        batas_turb = (0, 100)
         # Cek anomali
-        if not (batas_pH[0] <= data['pH'] <= batas_pH[1]):
+        if not (batas_pH[0] <= data['pH_t'] <= batas_pH[1]):
             return jsonify({
                 'prediction': 'Sangat Tidak Layak (Anomali Terdeteksi!)',
-                'reason': f'Nilai pH ({data["pH"]}) di luar batas normal ({batas_pH[0]} - {batas_pH[1]})'
+                'reason': f'Nilai pH ({data["pH_t"]}) di luar batas normal ({batas_pH[0]} - {batas_pH[1]})'
             })
-            
-        if not (batas_temp[0] <= data['temperature'] <= batas_temp[1]):
+        if not (batas_temp[0] <= data['temperature_t'] <= batas_temp[1]):
             return jsonify({
                 'prediction': 'Sangat Tidak Layak (Anomali Terdeteksi!)',
-                'reason': f'Suhu air ({data["temperature"]}°C) di luar batas normal ({batas_temp[0]} - {batas_temp[1]}°C)'
+                'reason': f'Suhu air ({data["temperature_t"]}°C) di luar batas normal ({batas_temp[0]} - {batas_temp[1]}°C)'
             })
-            
-        if not (batas_turb[0] <= data['turbidity'] <= batas_turb[1]):
+        if not (batas_turb[0] <= data['turbidity_t'] <= batas_turb[1]):
             return jsonify({
                 'prediction': 'Sangat Tidak Layak (Anomali Terdeteksi!)',
-                'reason': f'Nilai kekeruhan ({data["turbidity"]} NTU) di luar batas normal ({batas_turb[0]} - {batas_turb[1]} NTU)'
+                'reason': f'Nilai kekeruhan ({data["turbidity_t"]} NTU) di luar batas normal ({batas_turb[0]} - {batas_turb[1]} NTU)'
             })
-
-        # Jika tidak ada anomali, gunakan model
-        features = [data['pH'], data['temperature'], data['turbidity']]
-        prediction = predict_quality(features)
-        
-        # Tentukan reason berdasarkan prediksi
+        # Jika tidak ada anomali, lakukan prediksi
+        result = predict_water_quality(data)
+        prediction = result['quality']
+        # Reason sesuai label
         if prediction == 'Sangat Layak':
             reason = 'Semua parameter berada dalam batas optimal, air dapat digunakan untuk kebutuhan sehari-hari'
         elif prediction == 'Cukup Layak':
@@ -58,15 +46,70 @@ def predict():
             reason = 'Parameter berada di luar batas normal, air tidak disarankan untuk digunakan'
         else:
             reason = 'Parameter berada jauh dari batas normal, air tidak layak digunakan'
-        
         response = {
             'prediction': prediction,
-            'reason': reason
+            'reason': reason,
+            'n_step': result['n_step'],
+            'pH_pred': result['pH_pred'],
+            'temperature_pred': result['temperature_pred'],
+            'turbidity_pred': result['turbidity_pred']
         }
-        
         return jsonify(response)
-    
     except Exception as e:
-        return jsonify({
-            'error': str(e)
-        }), 400
+        return jsonify({'error': str(e)}), 400
+
+# Route baru: /predict_anomali
+@api.route("/predict_anomali", methods=["POST"])
+def predict_anomali():
+    try:
+        data = request.get_json()
+        # Validasi input
+        required_fields = ['pH_t', 'temperature_t', 'turbidity_t', 'n_step']
+        for field in required_fields:
+            if field not in data:
+                return jsonify({'error': f'Field {field} is required'}), 400
+        # Batas anomali
+        batas_pH = (4.0, 9.0)
+        batas_temp = (20, 33)
+        batas_turb = (0, 100)
+        # Cek anomali
+        if not (batas_pH[0] <= data['pH_t'] <= batas_pH[1]):
+            return jsonify({
+                'prediction': 'Sangat Tidak Layak (Anomali Terdeteksi!)',
+                'reason': f'Nilai pH ({data["pH_t"]}) di luar batas normal ({batas_pH[0]} - {batas_pH[1]})'
+            })
+        if not (batas_temp[0] <= data['temperature_t'] <= batas_temp[1]):
+            return jsonify({
+                'prediction': 'Sangat Tidak Layak (Anomali Terdeteksi!)',
+                'reason': f'Suhu air ({data["temperature_t"]}°C) di luar batas normal ({batas_temp[0]} - {batas_temp[1]}°C)'
+            })
+        if not (batas_turb[0] <= data['turbidity_t'] <= batas_turb[1]):
+            return jsonify({
+                'prediction': 'Sangat Tidak Layak (Anomali Terdeteksi!)',
+                'reason': f'Nilai kekeruhan ({data["turbidity_t"]} NTU) di luar batas normal ({batas_turb[0]} - {batas_turb[1]} NTU)'
+            })
+        # Jika tidak ada anomali, lakukan prediksi
+        result = predict_water_quality(data)
+        prediction = result['quality']
+        # Reason sesuai label
+        if prediction == 'Sangat Layak':
+            reason = 'Semua parameter berada dalam batas optimal, air dapat digunakan untuk kebutuhan sehari-hari'
+        elif prediction == 'Cukup Layak':
+            reason = 'Parameter mendekati batas normal sehingga perlu perhatian khusus'
+        elif prediction == 'Layak':
+            reason = 'Parameter berada dalam batas normal, air dapat digunakan dengan pengawasan'
+        elif prediction == 'Tidak Layak':
+            reason = 'Parameter berada di luar batas normal, air tidak disarankan untuk digunakan'
+        else:
+            reason = 'Parameter berada jauh dari batas normal, air tidak layak digunakan'
+        response = {
+            'prediction': prediction,
+            'reason': reason,
+            'n_step': result['n_step'],
+            'pH_pred': result['pH_pred'],
+            'temperature_pred': result['temperature_pred'],
+            'turbidity_pred': result['turbidity_pred']
+        }
+        return jsonify(response)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
