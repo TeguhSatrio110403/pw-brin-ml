@@ -10,8 +10,22 @@ Rentang Waktu (n_step)
 '3 hari (864 langkah)': 864,
 '1 minggu (2016 langkah)': 2016
 
-# Endpoint
+# Endpoint Klasifikasi
 - `POST /api/predict`
+  - {
+        "pH_t": 7.0,
+        "temperature_t": 25.0,
+        "turbidity_t": 0.53,
+    }
+
+  - Response (JSON):
+  {
+      "prediction": "Layak",
+      "reason": "Parameter berada dalam batas normal, air dapat digunakan dengan pengawasan"
+    }
+
+# Endpoint Regresi dan Klasifikasi
+- `POST /api/predict_regresi_class`
   - {
         "pH_t": 7.0,
         "temperature_t": 25.0,
