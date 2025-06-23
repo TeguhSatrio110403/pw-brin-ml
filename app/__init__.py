@@ -1,8 +1,14 @@
-# Flask App Init
 from flask import Flask
-from app.routes.predict import predict_bp
+from .config import Config
+from .routes.predict import api
 
 def create_app():
     app = Flask(__name__)
-    app.register_blueprint(predict_bp)
+    app.config.from_object(Config)
+    app.register_blueprint(api)
+
+    @app.route("/")
+    def index():
+        return "Predict Water Quality  API is running!", 200
+
     return app
