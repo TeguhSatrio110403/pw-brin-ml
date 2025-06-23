@@ -1,7 +1,7 @@
 import joblib
 import os
 import numpy as np
-from ...config import Config
+from .config import Config
 
 model_path = Config.MODEL_PATH
 
