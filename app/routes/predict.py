@@ -6,7 +6,7 @@ from app.utils.check_anomaly import is_anomaly # type: ignore
 api = Blueprint("api", __name__)
 
 # Endpoint untuk klasifikasi biasa
-@api.route("/predict", methods=["POST"])
+@api.route("/api/predict", methods=["POST"])
 def predict():
     try:
         data = request.get_json()
