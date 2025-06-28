@@ -8,7 +8,7 @@ def create_app():
     app.config.from_object(Config)
     app.register_blueprint(api)
 
-    CORS(app, origins=["https://pw-brin-main.vercel.app", "http://localhost:5173"])
+    CORS(app, origins=["*"])
     # Untuk production, ganti "*" dengan domain frontend kamu, misal:
     # CORS(app, origins=["https://namadomainfrontend.com"])
 
